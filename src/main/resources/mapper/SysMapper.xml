@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.rfxdevelop.db2admin.dao.simple.SysMapper" >
+
+  <select id="selectTables" resultType="java.util.LinkedHashMap">
+      select
+      if(t.table_comment is null or t.table_comment = '',t.table_name,t.table_comment) table_comment,
+      c.table_name,
+      c.column_name,
+      if(c.column_comment is null or c.column_comment = '',c.column_name,c.column_comment) column_comment,
+      if(u.table_name is null,false,true) _key,
+      c.column_type,
+      c.data_type,
+      c.is_nullable
+      from  information_schema.columns c
+      LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE u on u.table_name = c.table_name and u.column_name = c.column_name
+      LEFT JOIN information_schema.TABLES t on c.table_name = t.table_name and c.table_schema = t.table_schema
+      where 1=1
+
+      <foreach collection="tableSchemas" item="tableSchema" open="" close="" separator=" ">
+          and c.table_schema = #{tableSchema}
+      </foreach>
+    ORDER BY c.table_name
+
+  </select>
+
+</mapper>
