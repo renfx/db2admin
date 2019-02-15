@@ -9,5 +9,4 @@ import java.util.Map;
 @Data
 public class BaseData {
     private Map<String,DbTable> tableMap;
-    private Map<String,String> tableShowMap;
 }

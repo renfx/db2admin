@@ -1,4 +1,4 @@
-package com.rfxdevelop.db2admin.dao.simple;
+package com.rfxdevelop.db2admin.dao.information;
 
 import org.apache.ibatis.annotations.Param;
 

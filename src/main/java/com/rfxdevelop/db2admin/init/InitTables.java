@@ -1,6 +1,6 @@
 package com.rfxdevelop.db2admin.init;
 
-import com.rfxdevelop.db2admin.dao.simple.SysMapper;
+import com.rfxdevelop.db2admin.dao.information.SysMapper;
 import com.rfxdevelop.db2admin.model.BaseData;
 import com.rfxdevelop.db2admin.model.DbColumn;
 import com.rfxdevelop.db2admin.model.DbTable;
@@ -47,13 +47,13 @@ public class InitTables implements CommandLineRunner {
             Map<String, DbColumn> columns;
             if(tableMap.containsKey(table_name)){
                 DbTable dbTable = tableMap.get(table_name);
-                columns = dbTable.getColumns();
+                columns = dbTable.getColumnMap();
             }else{
                 columns = new LinkedHashMap<>();
                 DbTable dbTable = DbTable.builder()
                         .table_name(table_name)
                         .table_comment(table_comment)
-                        .columns(columns).build();
+                        .columnMap(columns).build();
 
                 tableMap.put(table_name,dbTable);
             }
@@ -61,6 +61,5 @@ public class InitTables implements CommandLineRunner {
         });
         //初始化表名数据
         baseData.setTableMap(tableMap);
-        //表名名称对应中文
     }
 }

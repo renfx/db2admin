@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Order(0)
-@WebFilter(filterName = "AccessAllowFilter",urlPatterns = {"/basic/*","/baseData/*","/simple/*"})
+@WebFilter(filterName = "AccessAllowFilter",urlPatterns = {"/basic/*","/baseData/*","/information/*"})
 public class AccessAllowFilter implements Filter {
 
     @Override

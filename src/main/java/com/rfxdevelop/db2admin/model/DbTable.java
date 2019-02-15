@@ -9,5 +9,5 @@ import java.util.Map;
 public class DbTable {
     private String table_name;
     private String table_comment;
-    private Map<String,DbColumn> columns;
+    private Map<String,DbColumn> columnMap;
 }
