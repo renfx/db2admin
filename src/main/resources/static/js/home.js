@@ -84,8 +84,7 @@ layui.define(['element','layer'],function(exports){
     var Home = function(){
 
         var tabs = new Tab('tabs'), navItems = [];
-
-        $('#Nav a').on('click',function(event){
+        $(document).on('click', '#Nav a', function (event) {
             event.preventDefault();
             var $this = $(this), url = $this.attr('href'),
                 title = $.trim($this.text());
@@ -101,10 +100,10 @@ layui.define(['element','layer'],function(exports){
                 .addClass('layui-nav-itemed')
                 .siblings()
                 .removeClass('layui-nav-itemed');
-        });
+        })
 
         // 默认触发第一个子菜单的点击事件
-        $('#Nav li.layui-nav-item:eq(0) > dl.layui-nav-child > dd > a:eq(0)').trigger('click');
+        // $('#Nav li.layui-nav-item:eq(0) > dl.layui-nav-child > dd > a:eq(0)').trigger('click');
 
         tabs.onChange(function(data){
             var i = data.index, $this = navItems[i];

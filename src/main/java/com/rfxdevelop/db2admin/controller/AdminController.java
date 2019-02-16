@@ -14,7 +14,7 @@ public class AdminController {
 
     @RequestMapping("/table/{tableName}.html")
     public ModelAndView test(@PathVariable("tableName") String tableName,ModelAndView modelAndView) throws Exception {
-        modelAndView.setViewName("main");
+        modelAndView.setViewName("right");
         modelAndView.addObject("tableName",tableName);
         return modelAndView;
     }

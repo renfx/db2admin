@@ -11,11 +11,14 @@
                     <i class="layui-icon">&#xe609;</i>
                     <em>基础管理</em>
                 </a>
+                <dl id="hideDl" class="layui-nav-child" style="display: none">
+                </dl>
             </li>
 
         </ul>
 
 
+
     </div>
 </div>
-<script src="/js/navigation.js" data-main="home"></script>
+<script src="/js/navigation.js?v=3" data-main="home"></script>

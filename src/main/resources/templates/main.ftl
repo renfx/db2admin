@@ -24,6 +24,6 @@
 
         <#include "footer.ftl">
     </div>
-    <script src="/js/home.js" data-main="home"></script>
+    <script src="/js/home.js?v=9" data-main="home"></script>
 </body>
 </html>
