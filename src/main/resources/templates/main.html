@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <#include "css.ftl">
+    <div th:replace="css"/>
     <title>管理后台</title>
 </head>
 <body class="layui-layout-body">
-
-    <#include "js.ftl">
+    <div th:replace="js"/>
     <div class="layui-layout layui-layout-admin">
-        <#include "header.ftl">
-
-        <#include "navigation.ftl">
+        <div th:replace="header"/>
+        <div th:replace="navigation"/>
 
         <div class="layui-body">
              <div class="layui-tab app-container" lay-allowClose="true" lay-filter="tabs">
@@ -21,8 +19,7 @@
                 <div id="appTabPage" class="layui-tab-content"></div>
             </div>
         </div>
-
-        <#include "footer.ftl">
+        <div th:replace="footer"/>
     </div>
     <script src="/js/home.js?v=9" data-main="home"></script>
 </body>

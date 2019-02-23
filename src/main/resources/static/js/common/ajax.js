@@ -25,4 +25,4 @@ layui.define(['layer'],function(exports){
     };
 
     exports('http', obj);
-});  
+});
