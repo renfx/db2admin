@@ -13,8 +13,8 @@
     <div class="layui-page-header">
         <div class="pagewrap">
                 <span class="layui-breadcrumb">
-                  <a href="">首页</a>
-                  <a href="">基础管理</a>
+                  <a href="#">首页</a>
+                  <a href="#">基础管理</a>
                   <a><cite th:text="${tableData.table_comment}"></cite></a>
                 </span>
             <h2 class="title" th:text="${tableData.table_comment}"></h2>
@@ -31,96 +31,79 @@
                                     <span th:each="column : ${tableData.columnMap}">
                                         <div class="layui-form-mid" th:text="${column.value.column_comment+':'}"></div>
                                         <div class="layui-input-inline" style="width: 100px;">
-                                            <input type="text" autocomplete="off" class="layui-input"
+                                            <input type="text" th:name="${column.value.column_name}" autocomplete="off" class="layui-input"
                                                    th:placeholder="${column.value.column_comment}">
                                         </div>
                                     </span>
-                                <button class="layui-btn layui-btn-blue">查询</button>
-                                <button class="layui-btn layui-btn-primary">重置</button>
+                                <input type="button" value="查询" class="layui-btn layui-btn-blue" id="queryButton"/>
+                                <input type="button" value="重置" class="layui-btn layui-btn-primary" onclick="queryForm.reset()"/>
                             </div>
                         </div>
                     </form>
-                    <button class="layui-btn layui-btn-blue"><i class="layui-icon">&#xe654;</i>新增</button>
-                    <table id="datatable"></table>
+                    <table id="datatable" lay-filter="datatable"></table>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="add"><i class="layui-icon">&#xe654;</i>添加</button>
+        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="delete">删除</button>
+        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="update">编辑</button>
+    </div>
+</script>
 <script th:inline="javascript">
 
     layui.use(['http', 'table', 'element', 'form'], function () {
         var table = layui.table, $ = layui.$, http = layui.http;
         var tableName = [[${tableName}]];
         let tableData = [[${tableData}]];
-        console.log(tableName)
         console.log(tableData)
         initTable();
-
-        function query() {
-            select(null, whereList())
-        }
-
         function whereList() {
             let whereList = [];
             let queryForm = $("#queryForm").serializeArray();
-            $.each(queryForm, (key, value) => {
-                if (value != '' && value != null) {
-                    let data_type = this.getTableInfo().columns[key].data_type;
+            let i = 0;
+            $.each(queryForm, (key, input) => {
+                if (input.value != '' && input.value != null) {
+                    let data_type = tableData.columnMap[input.name].data_type;
                     if (data_type == 'datetime' || data_type == 'date') {
                         if (value.length == 2) {
                             whereList[i++] = {
-                                key: key,
+                                key: input.name,
                                 separator: '>=',
-                                value: value[0]
+                                value: input[0]
                             };
                             whereList[i++] = {
-                                key: key,
+                                key: input.name,
                                 separator: '<=',
-                                value: value[1]
+                                value: input[1]
                             };
                         }
                     } else {
                         whereList[i++] = {
-                            key: key,
+                            key: input.name,
                             separator: '=',
-                            value: value
+                            value: input.value
                         };
                     }
                 }
             })
+            console.log(whereList)
             return whereList;
         }
-        function param(pageQuery){
-            if (!pageQuery) {//默认每页十条
-                pageQuery = {
-                    pageNo: 1,
-                    pageSize: 20
-                }
-            }
+        function param(){
             let params = {
                 tableName: tableName
-            }
-
-            params.whereList = JSON.stringify(whereList());
-            if (pageQuery) {
-                params.pageQuery = JSON.stringify(pageQuery);
+                ,whereList:JSON.stringify(whereList())
             }
             return params;
         }
 
-        function select(pageQuery, whereList) {
-            if (!pageQuery) {//默认每页十条
-                pageQuery = {
-                    pageNo: 1,
-                    pageSize: 20
-                }
-            }
-            layui.http.ajaxPost('/basic/select-selectCount', param(pageQuery), function (data) {
-                console.log(data)
-            })
-        }
+        $("#queryButton").on("click",function(){
+            table.reload('datatable',{where: param()});
+        })
 
         function initTable() {
             let cols=[
@@ -134,30 +117,36 @@
             table.render({
                 elem: '#datatable'
                 , method: 'post'
+                ,toolbar: '#toolbar'
                 , where: param()
                 , url: '/basic/select-selectCount'
                 , parseData: function(res){
-                    console.log(res)
                     if(res.success){
-
                         return {
-
                             "code": res.code, //解析接口状态
                             "msg": res.msg, //解析提示文本
                             "count": res.map.selectCount, //解析数据长度
                             "data": res.map.select //解析数据列表
                         };
                     }
-
-
                 }
                 , cols: cols
                 , data: data
+                , autoSort: false
                 , skin: 'line' //表格风格
                 , even: true
                 , page: true //是否显示分页
                 , limits: [20, 50, 100,200,500]
                 , limit: 20 //每页默认显示的数量
+            });
+            table.on('sort(datatable)', function(obj){ //datatable是table原始容器的属性 lay-filter="对应的值"
+                let where = param()
+                where.orderBy = obj.field;
+                where.orderType = obj.type;
+                table.reload('datatable', {
+                    initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                    ,where: where
+                });
             });
         }
     })
