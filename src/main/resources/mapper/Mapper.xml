@@ -7,7 +7,15 @@
     WHERE 1=1
     <if test="whereList!=null">
       <foreach collection="whereList" item="item" open="" close="" separator=" ">
-        AND `${item.key}` ${item.separator} #{item.value}
+        <choose>
+          <when test='item.separator=="in" or item.separator=="not in"'>
+            AND `${item.key}` ${item.separator} (${item.value})
+          </when>
+          <otherwise>
+            AND `${item.key}` ${item.separator} #{item.value}
+          </otherwise>
+        </choose>
+
       </foreach>
     </if>
   </sql>

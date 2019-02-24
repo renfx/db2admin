@@ -12,8 +12,11 @@ layui.define(['layer'],function(exports){
                 data: data,
                 dataType: "json",
                 success: function(data){
+                    console.log("ajaxPost",data)
                     if(data && data.success){
                         callBack(data.map)
+                    }else{
+                        layer.msg(data.msg)
                     }
                 },
                 error:function(){

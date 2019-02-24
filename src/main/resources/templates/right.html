@@ -49,16 +49,23 @@
 <script type="text/html" id="toolbar">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="add"><i class="layui-icon">&#xe654;</i>添加</button>
-        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="delete">删除</button>
-        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="update">编辑</button>
+        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="delete"><i class="layui-icon">&#xe640;</i>删除</button>
+        <button class="layui-btn layui-btn-blue layui-btn-sm" lay-event="update"><i class="layui-icon">&#xe642;</i>编辑</button>
     </div>
 </script>
 <script th:inline="javascript">
 
     layui.use(['http', 'table', 'element', 'form'], function () {
-        var table = layui.table, $ = layui.$, http = layui.http;
-        var tableName = [[${tableName}]];
+        let table = layui.table, $ = layui.$, http = layui.http;
+        let tableName = [[${tableName}]];
         let tableData = [[${tableData}]];
+        let primaryKey = null;
+        $.each(tableData.columnMap,(key,value)=>{
+            if(value._key){
+                primaryKey = key;
+            }
+        })
+
         console.log(tableData)
         initTable();
         function whereList() {
@@ -100,16 +107,19 @@
             }
             return params;
         }
+        function query(){
+            table.reload('datatable',{where: param()});
+        }
 
         $("#queryButton").on("click",function(){
-            table.reload('datatable',{where: param()});
+            query()
         })
 
         function initTable() {
             let cols=[
                 []
             ];
-            let data = []
+            cols[0].push({type:"checkbox"})
             $.each(tableData.columnMap,(key,value)=>{
                 cols[0].push({field: value.column_name, title: value.column_comment, sort: true})
             })
@@ -131,7 +141,7 @@
                     }
                 }
                 , cols: cols
-                , data: data
+                , data: []
                 , autoSort: false
                 , skin: 'line' //表格风格
                 , even: true
@@ -148,6 +158,68 @@
                     ,where: where
                 });
             });
+            //工具栏事件
+            table.on('toolbar(datatable)', function(obj){
+                let checkStatus = table.checkStatus(obj.config.id);
+                let openOption = {
+                    type: 2,
+                    title: '很多时候，我们想最大化看，比如像这个页面。',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '//fly.layui.com/'
+                };
+                switch(obj.event){
+                    case 'add':
+                        layer.open(openOption);
+                        break;
+                    case 'delete':
+                        if(checkStatus.data.length==0){
+                            layer.msg('请选择需要删除的行');
+                        }else{
+                            layer.confirm(' 确认删除?', {
+                                title:'<i class="layui-icon layui-icon-tips" style="color: #1E9FFF;"></i>  提示',
+                                btn: ['确定','取消'] //按钮
+                            }, function(){
+                                let ids="";
+                                $.each(checkStatus.data,(i,item)=>{
+                                    console.log(i,item)
+                                if(item[primaryKey]){
+                                    ids+=item[primaryKey]+",";
+                                }
+                            })
+                                if(ids.lastIndexOf(",")!=-1){
+                                    ids = ids.substr(0,ids.length-1)
+                                }
+                                var whereList=[{
+                                    key: 'index',
+                                    separator: 'in',
+                                    value: ids
+                                }]
+                                var param={
+                                    tableName:tableName,
+                                    whereList:JSON.stringify(whereList)
+                                }
+                                http.ajaxPost("/basic/delete",param,function(data){
+                                    layer.msg('删除成功');
+                                    query();
+                                });
+                            }, function(){
+                            });
+
+                        }
+                        break;
+                    case 'update':
+                        if(checkStatus.data.length==0) {
+                            layer.msg('请选择需要编辑的行');
+                        }else{
+                            layer.open(openOption);
+                        }
+                        break;
+                };
+            });
+
         }
     })
 
