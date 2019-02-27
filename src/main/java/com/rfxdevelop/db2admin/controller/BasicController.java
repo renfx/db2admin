@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 @RequestMapping(value = "/basic")
 public class BasicController {
 
-    @Autowired(required = false)
+    @Resource
     private IMapper iMapper;
 
 

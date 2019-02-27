@@ -13,10 +13,17 @@ public interface IMapper {
      * @param whereList 过滤条件 {"key":"index","separator":"=","value":"0"}
      * @param tableName 表名
      * @param columns 列
-     * @return
+     * @return List<Map>
      */
     List<Map<String,Object>> select(@Param("whereList") List<Map> whereList, @NonNull @Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("pageQuery") Map<String, Object> pageQuery);
 
+    /**
+     *  查找数量
+     * @param whereList 过滤条件 {"key":"index","separator":"=","value":"0"}
+     * @param tableName 表名
+     * @param columns 列
+     * @return Long
+     */
     Long selectCount(@Param("whereList") List<Map> whereList, @NonNull @Param("tableName") String tableName, @Param("columns") List<String> columns);
 
     /**
@@ -42,5 +49,13 @@ public interface IMapper {
      */
     void delete(@Param("whereList") List<Map> whereList, @NonNull @Param("tableName") String tableName);
 
+    /**
+     * 查找一条数据
+     * @param whereList 过滤条件 {"key":"index","separator":"=","value":"0"}
+     * @param tableName 表名
+     * @param columns 列
+     * @return
+     */
+    Map<String,Object> selectOne(@Param("whereList") List<Map<String, Object>> whereList, @NonNull @Param("tableName") String tableName, @Param("columns") List<String> columns);
 
 }

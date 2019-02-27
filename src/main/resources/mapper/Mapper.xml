@@ -74,4 +74,9 @@
       #{value}
     </foreach>
   </insert>
+  <select id="selectOne" resultType="java.util.LinkedHashMap">
+    <include refid="selectFrom"/>
+    LIMIT 1
+
+  </select>
 </mapper>

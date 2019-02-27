@@ -10,5 +10,6 @@ import java.util.Map;
 public class DbTable implements Serializable {
     private String table_name;
     private String table_comment;
+    private String primaryKey;
     private Map<String,DbColumn> columnMap;
 }

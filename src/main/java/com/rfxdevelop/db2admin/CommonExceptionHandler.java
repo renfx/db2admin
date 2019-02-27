@@ -13,6 +13,7 @@ public class CommonExceptionHandler
     @ResponseBody
     public Result handler(Exception e){
         Result result = Result.exceptionResult();
+        result.setStackTrace(e.getStackTrace());
         result.setMsg(e.getMessage()==null? ResultCode.EXCETION.getDescription():e.getMessage());
         e.printStackTrace();
         return result;

@@ -36,7 +36,7 @@
                                         </div>
                                     </span>
                                 <input type="button" value="查询" class="layui-btn layui-btn-blue" id="queryButton"/>
-                                <input type="button" value="重置" class="layui-btn layui-btn-primary" onclick="queryForm.reset()"/>
+                                <input type="reset" value="重置" class="layui-btn layui-btn-primary"/>
                             </div>
                         </div>
                     </form>
@@ -59,14 +59,8 @@
         let table = layui.table, $ = layui.$, http = layui.http;
         let tableName = [[${tableName}]];
         let tableData = [[${tableData}]];
-        let primaryKey = null;
-        $.each(tableData.columnMap,(key,value)=>{
-            if(value._key){
-                primaryKey = key;
-            }
-        })
+        let primaryKey = tableData.primaryKey;
 
-        console.log(tableData)
         initTable();
         function whereList() {
             let whereList = [];
@@ -97,7 +91,7 @@
                     }
                 }
             })
-            console.log(whereList)
+            console.log("whereList",whereList)
             return whereList;
         }
         function param(){
@@ -107,7 +101,7 @@
             }
             return params;
         }
-        function query(){
+        window.layer.query = function query(){
             table.reload('datatable',{where: param()});
         }
 
@@ -163,15 +157,16 @@
                 let checkStatus = table.checkStatus(obj.config.id);
                 let openOption = {
                     type: 2,
-                    title: '很多时候，我们想最大化看，比如像这个页面。',
+                    title: '',
                     shadeClose: true,
                     shade: false,
                     maxmin: true, //开启最大化最小化按钮
-                    area: ['893px', '600px'],
-                    content: '//fly.layui.com/'
+                    area: ['90%', '90%'],
+                    content: tableName+'/edit.html'
                 };
                 switch(obj.event){
                     case 'add':
+                        openOption.title='新增';
                         layer.open(openOption);
                         break;
                     case 'delete':
@@ -214,6 +209,8 @@
                         if(checkStatus.data.length==0) {
                             layer.msg('请选择需要编辑的行');
                         }else{
+                            openOption.content += "?"+primaryKey+"="+checkStatus.data[0][primaryKey];
+                            openOption.title='编辑';
                             layer.open(openOption);
                         }
                         break;

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <div th:replace="css"/>
+    <title></title>
+</head>
+<body class="layui-view-body">
+<!--<div th:replace="js"/>-->
+<div class="layui-content">
+    <div class="layui-row">
+        <div class="layui-card">
+            <form class="layui-form layui-card-body" id ="editForm" >
+                <div th:each="column : ${tableData.columnMap}" class="layui-form-item" th:hidden="${column.value._key}">
+                    <label class="layui-form-label" th:text="${column.value.column_comment+':'}"></label>
+                    <div class="layui-input-block">
+                        <input type="text"
+                               th:lay-verify="${(!column.value._key && column.value.is_nullable=='NO')?'required':''}"
+                               autocomplete="off" class="layui-input"
+                               th:id="${column.value.column_name}"
+                               th:name="${column.value.column_name}"
+                               th:value="${bean==null?'':bean[column.value.column_name]}"
+                               th:placeholder="${column.value.column_comment}" >
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn layui-btn-blue" lay-submit lay-filter="formSubmit" >立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="js"/>
+<script th:inline="javascript">
+    layui.use(['http','form'], function(){
+        let form = layui.form, http = layui.http;
+        let tableData = [[${tableData}]];
+        let tableName = [[${tableName}]];
+        let primaryKey = tableData.primaryKey;
+
+        //监听提交
+        form.on('submit(formSubmit)', function(data){
+            let dataMap = JSON.stringify(data.field)
+            console.log(dataMap)
+            let param = {
+                tableName:tableName
+            }
+            let primaryValue = data.field[primaryKey];
+            if(primaryValue){
+                param.whereList = JSON.stringify([{
+                    key:primaryKey,
+                    separator:'=',
+                    value:primaryValue,
+                }])
+                param.modifyMap = dataMap;
+                http.ajaxPost("/basic/update",param,function(data){
+                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                    parent.layer.close(index); //再执行关闭
+                    parent.layer.query()
+                    parent.layer.msg("修改成功");
+                });
+            }else{
+                param.insertMap = dataMap;
+                http.ajaxPost("/basic/insert",param,function(data){
+                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                    parent.layer.close(index); //再执行关闭
+                    parent.layer.query()
+                    parent.layer.msg("保存成功");
+                });
+            }
+
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

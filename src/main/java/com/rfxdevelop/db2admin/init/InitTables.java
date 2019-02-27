@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -36,6 +37,11 @@ public class InitTables implements CommandLineRunner {
             String table_name = MapUtils.getString(map, "table_name");
             String column_name = MapUtils.getString(map, "column_name");
             String table_comment = MapUtils.getString(map, "table_comment");
+            boolean _key = MapUtils.getBooleanValue(map, "_key");
+            String primaryKey = null;
+            if(_key){
+                primaryKey = column_name;
+            }
             DbColumn dbColumn = DbColumn.builder().build();
             try {
                 BeanUtils.populate(dbColumn,map);
@@ -45,17 +51,22 @@ public class InitTables implements CommandLineRunner {
                 log.info("初始化Table报错："+e.getMessage());
             }
             Map<String, DbColumn> columns;
+            DbTable dbTable;
             if(tableMap.containsKey(table_name)){
-                DbTable dbTable = tableMap.get(table_name);
+                dbTable = tableMap.get(table_name);
                 columns = dbTable.getColumnMap();
+
             }else{
                 columns = new LinkedHashMap<>();
-                DbTable dbTable = DbTable.builder()
+                dbTable = DbTable.builder()
                         .table_name(table_name)
                         .table_comment(table_comment)
                         .columnMap(columns).build();
 
                 tableMap.put(table_name,dbTable);
+            }
+            if(StringUtils.hasText(primaryKey) && !StringUtils.hasText(dbTable.getPrimaryKey())){
+                dbTable.setPrimaryKey(primaryKey);
             }
             columns.put(column_name,dbColumn);
         });

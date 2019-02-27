@@ -11,6 +11,7 @@ import java.util.Map;
 public class Result {
     private int code;
     private String msg;
+    private StackTraceElement[] stackTrace;
     private Boolean success;
     private Map<String,Object> map;
 
