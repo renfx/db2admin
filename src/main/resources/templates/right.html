@@ -31,7 +31,9 @@
                                     <span th:each="column : ${tableData.columnMap}">
                                         <div class="layui-form-mid" th:text="${column.value.column_comment+':'}"></div>
                                         <div class="layui-input-inline" style="width: 100px;">
-                                            <input type="text" th:name="${column.value.column_name}" autocomplete="off" class="layui-input"
+                                            <input type="text"
+                                                   th:id="${column.value.column_name}"
+                                                   th:name="${column.value.column_name}" autocomplete="off" class="layui-input"
                                                    th:placeholder="${column.value.column_comment}">
                                         </div>
                                     </span>
@@ -55,31 +57,35 @@
 </script>
 <script th:inline="javascript">
 
-    layui.use(['http', 'table', 'element', 'form'], function () {
-        let table = layui.table, $ = layui.$, http = layui.http;
+    layui.use(['http', 'table', 'element', 'form', 'laydate','util'], function () {
+        let table = layui.table, $ = layui.$, http = layui.http, laydate = layui.laydate, util = layui.util;
         let tableName = [[${tableName}]];
         let tableData = [[${tableData}]];
         let primaryKey = tableData.primaryKey;
 
+        initSearch();
         initTable();
         function whereList() {
             let whereList = [];
             let queryForm = $("#queryForm").serializeArray();
             let i = 0;
             $.each(queryForm, (key, input) => {
-                if (input.value != '' && input.value != null) {
+                if (input.value !== '' && input.value != null) {
                     let data_type = tableData.columnMap[input.name].data_type;
-                    if (data_type == 'datetime' || data_type == 'date') {
-                        if (value.length == 2) {
+                    if (data_type === 'datetime' || data_type === 'date' || data_type === 'time' || data_type === 'timestamp') {
+                        input.value = input.value.replace(/\s*/g,"");
+                        let splitTime = input.value.split("~");
+                        console.log(input.value)
+                        if (splitTime.length == 2) {
                             whereList[i++] = {
                                 key: input.name,
                                 separator: '>=',
-                                value: input[0]
+                                value: splitTime[0]
                             };
                             whereList[i++] = {
                                 key: input.name,
                                 separator: '<=',
-                                value: input[1]
+                                value: splitTime[1]
                             };
                         }
                     } else {
@@ -104,10 +110,30 @@
         window.layer.query = function query(){
             table.reload('datatable',{where: param()});
         }
-
         $("#queryButton").on("click",function(){
-            query()
+            layer.query()
         })
+
+        function initSearch(){
+            let option = {
+                range: '~'
+            }
+            $.each(tableData.columnMap,(key,value)=>{
+                if(value.data_type==='datetime' || value.data_type==='timestamp'){
+                    option.format = 'yyyy-MM-dd HH:mm:ss';
+                    option.elem = '#'+value.column_name;
+                    laydate.render(option);
+                }else if(value.data_type==='date'){
+                    option.format = 'yyyy-MM-dd';
+                    option.elem = '#'+value.column_name;
+                    laydate.render(option);
+                }else if(value.data_type==='time'){
+                    option.format = 'HH:mm:ss';
+                    option.elem = '#'+value.column_name;
+                    laydate.render(option);
+                }
+            })
+        }
 
         function initTable() {
             let cols=[
@@ -115,7 +141,21 @@
             ];
             cols[0].push({type:"checkbox"})
             $.each(tableData.columnMap,(key,value)=>{
-                cols[0].push({field: value.column_name, title: value.column_comment, sort: true})
+                let col = {field: value.column_name, title: value.column_comment, sort: true};
+                if(value.data_type==='datetime' || value.data_type==='timestamp'){
+                    col.templet=function(d){
+                        return util.toDateString(new Date(d[value.column_name]), 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }else if(value.data_type==='date'){
+                    col.templet=function(d){
+                        return util.toDateString(new Date(d[value.column_name]), 'yyyy-MM-dd')
+                    }
+                }else if(value.data_type==='time'){
+                    col.templet=function(d){
+                        return util.toDateString(new Date(d[value.column_name]), 'HH:mm:ss')
+                    }
+                }
+                cols[0].push(col)
             })
             //展示已知数据
             table.render({
@@ -161,7 +201,7 @@
                     shadeClose: true,
                     shade: false,
                     maxmin: true, //开启最大化最小化按钮
-                    area: ['90%', '90%'],
+                    area: ['95%', '95%'],
                     content: tableName+'/edit.html'
                 };
                 switch(obj.event){
@@ -198,7 +238,7 @@
                                 }
                                 http.ajaxPost("/basic/delete",param,function(data){
                                     layer.msg('删除成功');
-                                    query();
+                                    layer.query();
                                 });
                             }, function(){
                             });

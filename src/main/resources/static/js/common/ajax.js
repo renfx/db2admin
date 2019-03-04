@@ -20,29 +20,15 @@ layui.define(['layer'],function(exports){
                         if(parent && parent.layer){
                             parentLayer = parent.layer;
                         }
-                        let html = "<div class=\"layui-content\">\n" +
-                            "    <div class=\"layui-row\">\n" +
-                            "        <div class=\"layui-card\">" +
-                            "    <ul class=\"layui-timeline\">\n";
-                        $.each(data.stackTrace,(key,value)=>{
-                            html+="  <li class=\"layui-timeline-item\" style='margin-bottom: 0px'>\n" +
-                                "    <i class=\"layui-icon layui-timeline-axis\">&#xe63f;</i>\n" +
-                                "    <div class=\"layui-timeline-content layui-text\">\n" +
-                                "      <h4 class=\"layui-timeline-title\">类:"+value.className+" 方法名:"+value.methodName+
-                                " 行:" +value.lineNumber+
-                                "      </h4>\n" +
-                                "    </div>\n" +
-                                "  </li>\n";
-                        })
-                        html+="</ul>" +
-                            "</div>\n" +
-                            "    </div>\n" +
-                            "</div>";
+                        let html ="<textarea readonly style='height:100%;resize:none;' class=\"layui-textarea\">"+data.exception+"</textarea>\n";
                         parentLayer.open({
                             type: 1,
                             title:"异常信息",
-                            area: ['100%', '100%'], //宽高
-                            content: html
+                            area: ['95%', '95%'], //宽高
+                            content: html,
+                            success: function(layero, index){
+                                parentLayer.msg("后台异常,已经弹出异常信息");
+                            }
                         });
                     }
                 },
